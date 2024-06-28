@@ -1,14 +1,17 @@
-from contextlib import asynccontextmanager
-
 import uvicorn
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from api.v1.event_setter import router
 from aio_pika import connect_robust
+from aio_pika.exceptions import AMQPConnectionError
+from backoff import on_exception, expo
 
 from core.config import settings
 from services.broker_service import broker_service
 
+
+@on_exception(expo, (AMQPConnectionError), max_tries=10)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     broker_service.connection = await connect_robust(settings.rabbit_connection)
