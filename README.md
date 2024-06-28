@@ -47,9 +47,9 @@ groups - Группа пользователей для рассылки
 Пример запроса:
 
 {
-    "receiver": "9de57835-28b7-4cc7-be46-95a0fb1b17c1",
-    "event_name": "statistic",
-    "type": "personal",
+    "recipient": "9de57835-28b7-4cc7-be46-95a0fb1b17c1",
+    "template_name": "statistic",
+    "type_event": "personal",
     "context": {
         "title": "new_films",
         "email": "ivan@yandex.ru",
@@ -65,9 +65,9 @@ curl --location --request GET '127.0.0.1:8080/api/v1/send-notification/email' \
 --header 'Content-Type: application/json' \
 --header 'Cookie: csrftoken=mKjF1tJ1h0WVkk9XM99EP2MAqP8i8cdSDAmcEBVhFsSxuIXaS3ROG87umafmJqcF' \
 --data '{
-    "receiver": "9de57835-28b7-4cc7-be46-95a0fb1b17c1",
-    "event_name": "statistic",
-    "type": "personal",
+    "recipient": "9de57835-28b7-4cc7-be46-95a0fb1b17c1",
+    "template_name": "statistic",
+    "type_event": "personal",
     "context": {
         "title": "new_films",
         "email": "ivan@yandex.ru",
@@ -78,8 +78,8 @@ curl --location --request GET '127.0.0.1:8080/api/v1/send-notification/email' \
 }'
 
 Поля запроса:
-receiver - Один UUID для персональной рассылки или список UUID при рассылке всем пользователям (all) - пустой список.
-event_name - Название шаблона = Имя очереди.
-event_type - Тип события.
-type - Тип рассылки (personal/group/all).
+recipient - Один UUID для персональной рассылки или список UUID при рассылке всем пользователям (all) - пустой список.
+template_name - Название шаблона.
+event - Тип события.
+type_event - Тип рассылки (personal/group/all).
 context - Контекст для подстановки данных в шаблон.

@@ -33,7 +33,7 @@ class RequestEventModel(OrjsonBaseModel):
     type_event: NotificationType
     event: str
     template_name: str
-    context:dict
+    context: dict
 
 
 class ResponseModel(OrjsonBaseModel):
