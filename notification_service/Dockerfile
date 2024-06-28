@@ -1,22 +1,12 @@
 FROM python:3.9-slim
+WORKDIR /app
 
-RUN apt-get update && apt-get install -y netcat && rm -rf /var/lib/apt/lists/*
-RUN pip install --upgrade pip
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-WORKDIR /notification_service
-ENV PYTHONPATH=$PYTHONPATH:$ROOT_DIR/src
+COPY ./notification_service/requirements.txt requirements.txt
 
-RUN groupadd -r notification_service && useradd -d /notification_service -r -g notification_service notification_service
+RUN apt-get update && apt-get -y install curl
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY requirements.txt requirements.txt
-RUN pip install --upgrade pip \
-    && pip install -r requirements.txt
-
-COPY src/ /notification_service
-COPY wait_for.sh /notification_service
-RUN chown notification_service:notification_service -R /notification_service
-RUN chmod +x wait_for.sh
-
-USER notification_service
-
-CMD ./wait_for.sh rabbitmq:5672 && gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8080
+COPY ./notification_service/src ./src

@@ -2,11 +2,8 @@ version: '3'
 
 services:
   rabbitmq:
-    container_name: rabbitmq
-    hostname: rabbitmq
-    image: rabbitmq:3.11-management
-    restart:
-      always
+    image: rabbitmq:3.13.3-management
+    container_name: rabbitmq   
     environment:
       RABBITMQ_DEFAULT_USER: rmuser
       RABBITMQ_DEFAULT_PASS: rmpassword
@@ -15,32 +12,49 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   notification_api:
-    build: notification_service
+    build:
+      context: .
+      dockerfile: ./notification_service/Dockerfile
     container_name: notification_api
-    ports:
-      - "8080:8080"
-    depends_on:
-     - rabbitmq
-     - notifications_db
-    restart:
-      always
-    env_file:
-    - envs/.env
+    command: sh -c "python3 src/main.py"
     volumes:
       - ./notification_service:/notification_service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      notifications_db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    env_file:
+    - envs/.env
 
   notifications_db:
     image: postgres:14.3
     container_name: notifications_db
-    env_file:
-      - envs/.env
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: 123qwe
     volumes:
       - db:/var/lib/postgresql/data
       - ./admin/init_db.sql:/docker-entrypoint-initdb.d/init.sql
     expose:
       - 5432
+    env_file:
+      - envs/.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres -U app"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
   admin:
     build: admin
@@ -90,7 +104,16 @@ services:
     depends_on:
       - zookeeper
 
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:24.0.5
+    container_name: services-dbeaver
+    ports:
+      - '8978:8978'
+    volumes: 
+      - cloudbeaver:/opt/cloudbeaver/workspace 
+
 volumes:
   static:
   media:
   db:
+  cloudbeaver:
