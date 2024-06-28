@@ -1,9 +1,10 @@
-from pydantic import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     project_name: str = Field("notification_service", env="PROJECT_NAME")
-    service_host: str = Field("notification_api", env="NS_HOST")
+    service_host: str = Field("127.0.0.1", env="NS_HOST")
     service_port: int = Field(8080, env="NS_PORT")
 
     db_name: str = Field("postgres", env="DB_NAME")
@@ -15,12 +16,12 @@ class Settings(BaseSettings):
     rabbit_host: str = Field("rabbitmq", env="RABBITMQ_HOST")
     rabbit_port: int = Field(5672, env="RABBITMQ_PORT")
     rabbit_user: str = Field("rmuser", env="RABBITMQ_USER")
-    rabbit_password: str = Field(env="RABBITMQ_PASSWORD")
+    rabbit_password: str = Field("rmpassword", env="RABBITMQ_PASSWORD")
     rabbit_delivery_mode: int = Field(2, env="RABBITMQ_DELIVERY_MODE")
     rabbit_exchange: str = Field("main", env="RABBITMQ_EXCHANGE")
 
     class Config:
-        env_file = "envs/.env"
+        env_file = "./envs/.env"
     
     @property
     def db_connection(self):

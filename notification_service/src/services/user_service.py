@@ -1,3 +1,5 @@
+from typing import Union
+
 from db.models import User
 from models.models import UserModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,7 +25,7 @@ class UserService:
         else:
             return None
     
-    async def get_users(self, user_list: list | None) -> list[UserModel]:
+    async def get_users(self, user_list: Union[list, None]) -> list[UserModel]:
         if not user_list:
             query = select(self._model)
         else:

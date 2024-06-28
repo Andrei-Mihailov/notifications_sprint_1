@@ -2,11 +2,8 @@ version: '3'
 
 services:
   rabbitmq:
-    container_name: rabbitmq
-    hostname: rabbitmq
-    image: rabbitmq:3.11-management
-    restart:
-      always
+    image: rabbitmq:3.13.3-management
+    container_name: rabbitmq   
     environment:
       RABBITMQ_DEFAULT_USER: rmuser
       RABBITMQ_DEFAULT_PASS: rmpassword
@@ -15,82 +12,95 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
   notification_api:
-    build: notification_service
+    build:
+      context: .
+      dockerfile: ./notification_service/Dockerfile
     container_name: notification_api
-    ports:
-      - "8080:8080"
-    depends_on:
-     - rabbitmq
-     - notifications_db
-    restart:
-      always
-    env_file:
-    - envs/.env
+    command: sh -c "python3 src/main.py"
     volumes:
       - ./notification_service:/notification_service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      notifications_db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    env_file:
+    - envs/.env
 
   notifications_db:
     image: postgres:14.3
     container_name: notifications_db
-    env_file:
-      - envs/.env
     volumes:
       - db:/var/lib/postgresql/data
       - ./admin/init_db.sql:/docker-entrypoint-initdb.d/init.sql
     expose:
       - 5432
-
-  admin:
-    build: admin
     env_file:
       - envs/.env
-    depends_on:
-      - notifications_db
-    volumes:
-      - static:/admin/static/
-      - media:/admin/media/
-      - ./admin:/admin
-    ports:
-      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres -U app"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
-  worker:
-    build: worker
-    image: worker
-    volumes:
-      - ./worker/:/app
+  # admin:
+  #   build: admin
+  #   env_file:
+  #     - envs/.env
+  #   depends_on:
+  #     - notifications_db
+  #   volumes:
+  #     - static:/admin/static/
+  #     - media:/admin/media/
+  #     - ./admin:/admin
+  #   ports:
+  #     - "8000:8000"
 
-  redis:
-    image: redis:latest
-    expose:
-      - 6379
+  # worker:
+  #   build: worker
+  #   image: worker
+  #   volumes:
+  #     - ./worker/:/app
 
-  celery:
-    image: worker
-    command: celery -A tasks worker --loglevel=INFO
-    volumes:
-      - .worker/:/app
+  # redis:
+  #   image: redis:latest
+  #   expose:
+  #     - 6379
 
-  #Clickhouse
-  zookeeper:
-    image: zookeeper:3.5
-    container_name: zookeeper
-    hostname: zookeeper
+  # celery:
+  #   image: worker
+  #   command: celery -A tasks worker --loglevel=INFO
+  #   volumes:
+  #     - .worker/:/app
 
-  clickhouse-node1:
-    image: clickhouse/clickhouse-server
-    container_name: clickhouse-node1
-    hostname: clickhouse-node1
-    expose:
-      - 8123
-      - 9000
-    volumes:
-      - ./worker/clickhouse/node1:/etc/clickhouse-server
-    depends_on:
-      - zookeeper
+  # #Clickhouse
+  # zookeeper:
+  #   image: zookeeper:3.5
+  #   container_name: zookeeper
+  #   hostname: zookeeper
+
+  # clickhouse-node1:
+  #   image: clickhouse/clickhouse-server
+  #   container_name: clickhouse-node1
+  #   hostname: clickhouse-node1
+  #   expose:
+  #     - 8123
+  #     - 9000
+  #   volumes:
+  #     - ./worker/clickhouse/node1:/etc/clickhouse-server
+  #   depends_on:
+  #     - zookeeper
 
 volumes:
-  static:
-  media:
+  # static:
+  # media:
   db:

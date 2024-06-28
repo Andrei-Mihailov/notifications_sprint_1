@@ -1,5 +1,6 @@
 from uuid import UUID, uuid4
 from enum import Enum
+from typing import Union
 
 import orjson
 from pydantic import BaseModel, Field
@@ -28,7 +29,7 @@ class NotificationType(str, Enum):
 
 
 class RequestEventModel(OrjsonBaseModel):
-    recipient: str | list
+    recipient: Union[str, list]
     type_event: NotificationType
     event: str
     template_name: str
