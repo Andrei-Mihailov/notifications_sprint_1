@@ -8,3 +8,4 @@ SQLAlchemy==2.0.31
 backoff==2.2.1
 psycopg2_binary==2.9.9
 asyncpg==0.29.0
+requests==2.31.0

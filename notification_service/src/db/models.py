@@ -1,9 +1,10 @@
 import uuid
 
-from db.postgres_db import base
-from models.models import UserModel
 from sqlalchemy import Column, String
 from sqlalchemy.dialects.postgresql import UUID
+
+from db.postgres_db import base
+from models.models import UserModel
 
 
 class User(base):

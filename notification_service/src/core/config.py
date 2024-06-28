@@ -22,11 +22,11 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = "./envs/.env"
-    
+
     @property
     def db_connection(self):
         return f"postgresql+asyncpg://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
-    
+
     @property
     def rabbit_connection(self):
         return f"amqp://{self.rabbit_user}:{self.rabbit_password}@{self.rabbit_host}/"

@@ -1,12 +1,13 @@
-import uvicorn
 from contextlib import asynccontextmanager
+
+import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from api.v1.event_setter import router
 from aio_pika import connect_robust
 from aio_pika.exceptions import AMQPConnectionError
 from backoff import on_exception, expo
 
+from api.v1.event_setter import router
 from core.config import settings
 from services.broker_service import broker_service
 
@@ -37,5 +38,5 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=settings.service_port,
-        reload=True,   
+        reload=True,
     )
