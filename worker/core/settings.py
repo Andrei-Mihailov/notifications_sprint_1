@@ -24,7 +24,7 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 
-TEMPLATES_DIR = "templates/"
+TEMPLATES_DIR = "../templates/"
 EVENT_TO_TEMPLATE = {
     "registration": os.path.join(TEMPLATES_DIR, "mail.html"),
     "new_films": os.path.join(TEMPLATES_DIR, "new_film.html"),
