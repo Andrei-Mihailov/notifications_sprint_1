@@ -111,6 +111,21 @@ services:
       - '8978:8978'
     volumes: 
       - cloudbeaver:/opt/cloudbeaver/workspace 
+  
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/site.conf:/etc/nginx/conf.d/site.conf:ro
+      - static:/app/static:ro
+    depends_on:
+      admin:
+        condition: service_started
+      notification_api:
+        condition: service_started
+    ports:
+      - "80:80"
 
 volumes:
   static:

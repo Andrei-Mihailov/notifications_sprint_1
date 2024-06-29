@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     db_password: str = Field("123qwe", env="POSTGRES_PASSWORD")
     db_host: str = Field("notifications_db", env="POSTGRES_HOST")
     db_port: int = Field(5432, env="POSTGRES_PORT")
+    echo_db: bool = Field(False, env="ECHO_DB")
 
     rabbit_host: str = Field("rabbitmq", env="RABBITMQ_HOST")
     rabbit_port: int = Field(5672, env="RABBITMQ_PORT")

@@ -7,6 +7,7 @@ class Store:
 
     def __init__(self) -> None:
         self.client = Client(host=settings.clickhouse_host)
+        self.temp_storage = []
 
     def create_db_notification(self) -> None:
         self.client.execute("CREATE DATABASE IF NOT EXISTS notification",)
@@ -22,9 +23,10 @@ class Store:
         self.create_table_notification()
 
     def save_notification(self, data_message: dict[str, str]) -> None:
-        """Сохранение уведомления в базу."""
-        template_query: str = (
-            "INSERT INTO notification.regular_table "
-            "(id, status, context) VALUES ('{id}', '{status}', '{context}')"
-        ).format(**data_message)
-        self.client.execute(template_query)
+        if len(self.temp_storage) < 1000:
+            self.temp_storage.append(data_message['id'], data_message['status'], data_message['context'])
+        else:
+            """Сохранение уведомления в базу."""
+            template_query: str = "INSERT INTO notification.regular_table (id, status, context) VALUES"
+            self.client.execute(template_query, self.temp_storage)
+            self.temp_storage = []

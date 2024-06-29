@@ -8,7 +8,7 @@ from core.config import settings
 
 async_engine = create_async_engine(
     settings.db_connection,
-    echo=True,
+    echo=settings.echo_db,
     poolclass=AsyncAdaptedQueuePool,
     future=True
 )
