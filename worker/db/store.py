@@ -27,9 +27,6 @@ class Store:
             self.temp_storage.append(data_message['id'], data_message['status'], data_message['context'])
         else:
             """Сохранение уведомления в базу."""
-            template_query: str = (
-                "INSERT INTO notification.regular_table "
-                "(id, status, context) VALUES"
-            ).format(**data_message)
+            template_query: str = "INSERT INTO notification.regular_table (id, status, context) VALUES"
             self.client.execute(template_query, self.temp_storage)
             self.temp_storage = []
