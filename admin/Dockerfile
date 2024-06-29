@@ -6,6 +6,7 @@ RUN mkdir -p /admin/static/ \
     && groupadd -r usr \
     && useradd -d /admin/ -r -g usr usr \
     && chown usr:usr -R /admin/ \
+    && apt-get update \
     && apt-get -y install libpq-dev gcc
 
 COPY wait-for-it.sh /admin/
