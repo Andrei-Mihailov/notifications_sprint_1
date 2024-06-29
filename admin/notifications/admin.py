@@ -5,7 +5,11 @@ from django.contrib import admin, messages
 from notifications.models import Notification
 from notifications.models import Template as TemplateModel
 
+import sentry_sdk
+from sentry_sdk import capture_message
+
 logger = logging.getLogger(__name__)
+sentry_sdk.init(dsn="https://7e322a912461958b85dcdf23716aeff5@o4507457845592064.ingest.de.sentry.io/4507457848016976")
 
 
 class NotificationAdminUsersInline(admin.TabularInline):
@@ -36,15 +40,24 @@ class NotificationAdmin(admin.ModelAdmin):
             logger.info(
                 f"Отправка уведомления {notification} для пользователей {notification.recipients}"
             )
+            capture_message(
+                f"Отправка уведомления {notification} для пользователей {notification.recipients}",
+                level="info")
             status_code = notification.send()
             if status_code == HTTPStatus.OK:
                 self.message_user(
                     request, f"{notification} успешно отправлено", messages.SUCCESS
                 )
+                capture_message(
+                    f"Уведомление '{notification}' успешно отправлено.",
+                    level="info")
             else:
                 self.message_user(
                     request, f"Не удалось отправить {notification}", messages.ERROR
                 )
+                capture_message(
+                    f"Ошибка при отправке уведомления: {notification}.",
+                    level="error")
 
 
 @admin.register(TemplateModel)
